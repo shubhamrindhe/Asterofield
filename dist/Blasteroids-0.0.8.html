@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <meta name="author" content="shubhamrindhe" id="author"/>
+    <title>Blasteroids</title>
+	
+	<script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+
+	
+	<script>
+	  // Initialize Firebase
+	  var config = {
+		apiKey: "AIzaSyAf56vBwKiil_ZA6bcMVnj62-WfJdjGaPA",
+		authDomain: "test-99353.firebaseapp.com",
+		databaseURL: "https://test-99353.firebaseio.com",
+		projectId: "test-99353",
+		storageBucket: "test-99353.appspot.com",
+		messagingSenderId: "892543836860"
+	  };
+	  firebase.initializeApp(config);
+	  console.log(firebase);
+	  
+	  var database = firebase.database();
+	  
+	  var ref = database.ref("score");
+	  
+	  
+	  
+	</script>
+	
+    <style>
+        body,*{
+            padding:0;
+            margin:0;
+        }
+    </style>
+            
+    <script>
+        
+        
+        var canvas,ctx,box;
+        
+        var stars = new Array();
+        var fallout = new Array();
+        var missiles = new Array();
+        var astroides = new Array();
+        var blastColor = ['orange','yellow','grey'];
+        
+        var g = {    x :    undefined,    y : undefined,    z : undefined,    };
+        var mouse = {    x : undefined,    y : undefined,    };
+        var key = [115,104,117,98,104,97,109,114,105,110,100,104,101];
+        
+        onload = function(){
+            
+            initiate.canvas(innerWidth,innerHeight);
+            
+            if(initiate.verification())
+                start_Game();
+            else
+                initiate.antiPiracyProtocall();
+            
+            setInterval(function(){ 
+                HUD.FPS = HUD.Framecount ;
+                HUD.Framecount = 0;
+            },1000);
+        };
+        onmousemove = function(e){
+            mouse.x = e.x;
+            mouse.y = e.y;
+        }
+        
+        var game = {
+            start : false,
+            paused : false,
+            score : 0,
+            sensitivity : 3,
+            mode : 'hardcore',
+            displayScore : function(){
+                ctx.beginPath()
+                ctx.strokeStyle = 'lightblue';
+                ctx.fillStyle = 'lightblue'; 
+                ctx.font = "20px Arial";
+                ctx.textAlign = 'end';
+                ctx.textBaseline = 'top'; 
+                ctx.fillText("Score : "+game.score ,canvas.width,0);
+                ctx.closePath();
+            
+            },
+        };
+        var HUD = {
+            Framecount : 0,
+            FPS : 0,
+            displayFPS : function(){
+                ctx.beginPath()
+                ctx.strokeStyle = 'red';
+                ctx.fillStyle = '#76b900'; //<- NVIDIA green
+                ctx.font = "20px Arial";
+                ctx.textAlign = 'start';
+                ctx.textBaseline = 'top'; 
+                ctx.fillText(this.FPS,0,0);
+                ctx.closePath();
+            },
+        };
+        var joystick = {
+            on : false,
+            analogStick : {
+                on : false,
+                phase : 0+Math.PI/2,
+                
+                X : undefined,
+                Y : undefined,
+                R : 50,
+                x : undefined,
+                y : undefined,
+                r : 30,
+                
+                render : function(){
+                
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'white';
+                        ctx.fillStyle = 'blue';
+                        ctx.lineWidth = 2;
+                        ctx.arc(this.X,this.Y,this.R,0,Math.PI*2,true);
+                        ctx.stroke();
+                        //ctx.fill();
+                        ctx.closePath();
+            
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'white';
+                        ctx.fillStyle = 'red';
+                        ctx.lineWidth = 2;
+                        ctx.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+                        ctx.stroke();
+                        //ctx.fill();
+                        ctx.closePath();
+                },
+                
+                
+            
+            },
+            
+        
+        
+        };
+        
+        
+        var spaceship = {
+            type : 2,
+            color: "red",
+            width: 20,
+            height: 20,
+            w : 10,
+            h : 22,
+            position : {
+                x: innerWidth/2,
+                y: innerHeight-100,
+            },
+            speed : 5,
+            velocity : {
+                x: undefined,
+                y: undefined
+            },
+            torque : 5,
+            angle: 0,
+            engineOn: true,
+            thruster : {
+                main : false, 
+                left : false,
+                right : false,
+                flame : 20,
+                w : 4,
+                h : 11,
+            },
+            rotating : {
+                left : false,
+                right : false,
+            },
+            crashed: false,
+            exploded : false,
+            
+            renderFlame : function(x,y,w,l,color){
+                        ctx.beginPath();
+                        ctx.moveTo(x,y);
+                        ctx.lineTo(x-w * 0.5, y);
+                        ctx.lineTo(x, y + Math.random() * l);
+                        ctx.lineTo( x+w*0.5, y);
+                        ctx.closePath();
+                        ctx.fillStyle = color;
+                        ctx.fill();
+            },
+            
+            render : function(){
+                        switch(spaceship.type){
+                        
+                            case 1 :
+                                    //rect
+                                    ctx.beginPath();
+                                    ctx.fillRect(spaceship.width * -0.5, spaceship.height * -0.5, spaceship.width, spaceship.height);
+                                    ctx.fillStyle = spaceship.color;
+                                    ctx.fill();
+                                    ctx.closePath();
+                                break;
+                            
+                            case 2 :
+                                    ctx.beginPath();
+                                    ctx.moveTo(0,spaceship.height*-0.5);
+                                    
+                                    ctx.lineTo(spaceship.w*-0.5,-spaceship.height/4);
+                                    ctx.lineTo(spaceship.w*-0.5,spaceship.height/4);
+                                    ctx.lineTo(spaceship.width*-0.5 + spaceship.thruster.w,spaceship.height/4);
+                                    ctx.lineTo(spaceship.width*-0.5 + spaceship.thruster.w,spaceship.height/4-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*-0.5,spaceship.height/4-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*-0.5,spaceship.height*.5);
+                                    ctx.lineTo(spaceship.width*-0.5 + spaceship.thruster.w,spaceship.height*.5);
+                                    ctx.lineTo(spaceship.width*-0.5 + spaceship.thruster.w,spaceship.height*.5-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.w*-.5,spaceship.height/2-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.w*-.5,spaceship.height/2);
+                                    
+                                    ctx.lineTo(spaceship.w*.5,spaceship.height/2);
+                                    ctx.lineTo(spaceship.w*.5,spaceship.height/2-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*0.5 - spaceship.thruster.w,spaceship.height*.5-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*0.5 - spaceship.thruster.w,spaceship.height*.5);
+                                    ctx.lineTo(spaceship.width*0.5,spaceship.height*.5);
+                                    ctx.lineTo(spaceship.width*0.5,spaceship.height/4-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*0.5 - spaceship.thruster.w,spaceship.height/4-spaceship.thruster.h/4);
+                                    ctx.lineTo(spaceship.width*0.5 - spaceship.thruster.w,spaceship.height/4);
+                                    ctx.lineTo(spaceship.w*0.5,spaceship.height/4);
+                                    ctx.lineTo(spaceship.w*0.5,-spaceship.height/4);
+                                    
+                                    ctx.fillStyle = spaceship.color;
+                                    ctx.fill();
+                                    ctx.closePath();
+                                break;
+                        
+                        
+                        
+                        }    
+            },
+            
+            draw : function(){
+                    ctx.save();
+                    //ctx.beginPath();
+                    ctx.translate(spaceship.position.x, spaceship.position.y);
+                    ctx.rotate(spaceship.angle);
+                    
+                    spaceship.render();
+                    
+                    // Draw the flame if engine is on
+                    if(spaceship.engineOn)
+                    {
+                        spaceship.renderFlame(0,spaceship.height * 0.5,spaceship.w,spaceship.thruster.flame,'orange');
+                    }
+                    if(spaceship.thruster.left)
+                    {
+                        spaceship.renderFlame(spaceship.width*-.5 + spaceship.thruster.w/2,spaceship.height * 0.5,spaceship.thruster.w,spaceship.thruster.flame,'orange');
+                    }
+                    if(spaceship.thruster.right)
+                    {
+                        spaceship.renderFlame(spaceship.width*.5 - spaceship.thruster.w/2,spaceship.height * 0.5,spaceship.thruster.w,spaceship.thruster.flame,'orange');
+                    }
+                    ctx.restore();
+            },
+            update : function(){
+                    if(spaceship.rotating.right){
+                        spaceship.angle += spaceship.torque*(Math.PI / 180);
+                        if( spaceship.angle > Math.PI*2 )
+                            spaceship.angle -= Math.PI*2;
+                    }
+                    else if(spaceship.rotating.left){
+                        spaceship.angle -= spaceship.torque*(Math.PI / 180);
+                        if( spaceship.angle < 0 )
+                            spaceship.angle += Math.PI*2;
+                    }
+                    if( spaceship.engineOn && spaceship.thruster.main )
+                    {
+                        spaceship.velocity.x = spaceship.speed*Math.sin(spaceship.angle);
+                        spaceship.velocity.y = spaceship.speed*Math.cos(spaceship.angle);
+                        
+                        spaceship.position.x += spaceship.velocity.x;
+                        spaceship.position.y -= spaceship.velocity.y;
+                    }
+                    
+                    astroides.forEach(function(particle){
+                        if(distance(particle,spaceship.position).r < particle.r + r(spaceship.width/2,spaceship.height/2,0,0)){
+                            spaceship.crashed = true;
+                        }
+                    });
+                    
+                    
+                    
+                    
+                        
+                    
+                    
+                    switch(game.mode){
+                        case 'easy' : 
+                            if(spaceship.position.x<0)
+                                spaceship.position.x = innerWidth;
+                            if(spaceship.position.x>innerWidth)
+                                spaceship.position.x = 0;
+                            if(spaceship.position.y<0)
+                                spaceship.position.y = innerHeight;
+                            if(spaceship.position.y>innerHeight)
+                                spaceship.position.y = 0;
+                            break;
+                            
+                        case 'hardcore' :
+                            if( spaceship.position.x<0 || spaceship.position.x>canvas.width || spaceship.position.y<0 || spaceship.position.y>canvas.height)
+                                spaceship.crashed = true;
+                            break;
+                    
+                    
+                    
+                    }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    this.draw();
+            },
+        };
+        
+        
+        function Missile(x,y,angle) {
+            this.phase =  angle;
+            this.x = x;
+            this.y = y; 
+            this.w = 4
+            this.h = 11;
+            this.velocity = {
+                x : 5*Math.sin(this.phase),
+                y : 5*Math.cos(this.phase),
+            };
+            this.color = 'red';
+            this.flameColor = 'orange';
+            
+            this.render = function(){
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.phase);
+                    
+                        ctx.beginPath();
+                        ctx.fillRect(this.w * -0.5, this.h * -0.5, this.w, this.h);
+                        ctx.fillStyle = 'red';
+                        ctx.fill();
+                        ctx.closePath();
+                        
+                        //this.renderFlame(0,this.h * 0.5);    
+                        ctx.beginPath();
+                        ctx.moveTo(0,this.h*.5);
+                        ctx.lineTo(-this.w * 0.5, this.h*.5);
+                        ctx.lineTo(0, this.h*.5 + Math.random()*30);
+                        ctx.lineTo( 0+this.w*0.5, this.h*.5);
+                        ctx.closePath();
+                        ctx.fillStyle = this.flameColor;    
+                        ctx.fill();    
+                    
+                    ctx.restore();
+                    
+                    this.x += this.velocity.x;
+                    this.y -= this.velocity.y;
+                    
+                    if( this.x<0 || this.x>innerWidth || this.y<0 || this.y> innerHeight ){
+                        missiles.splice(missiles.indexOf(this),1);
+                    }
+                    
+                    for(var i=0;i<astroides.length;++i){
+                        if(distance(astroides[i],this).r <= astroides[i].r + r(this.w/2,this.h/2,0,0) ){
+                            game.score++;
+                            missiles.splice(missiles.indexOf(this),1);
+                            
+                            var astro = astroides[i];
+                            initiate.blast(fallout,30,astroides[i].x,astroides[i].y);
+                            
+                            astroides.splice(i,1);
+                            //astroides.push(astro.x,astro.y,astro.r/2);
+                            //initiate.particles(astroides,1);    //infinite
+                            
+                            //alert();
+                        }
+                    }
+                    
+            }
+            
+        };
+        
+    
+        
+        function Particle(x,y,r){
+                
+                    this.x = x;
+                    this.y = y;
+                    this.r = r;
+                    this.color = 'rgba(180,180,180,1)';
+                    this.velocity={
+                        x : random(-2,2), 
+                        y : random(2,5)
+                    };
+                    this.mass = 1;
+                    this.gravity = {
+                        x : 0,
+                        y : 0,
+                    };
+                    this.a=1;
+                    this.radian = Math.random()*Math.PI*2;
+                    this.e = 1;
+                    
+                    
+                    
+                            
+                    this.draw = function(){
+                        
+                        ctx.beginPath();
+                        ctx.strokeStyle = this.color;
+                        ctx.fillStyle = this.color;
+                        ctx.lineWidth = 2;
+                        ctx.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+                        ctx.stroke();
+                        ctx.fill();
+                        ctx.closePath();            
+                        
+                    }
+                    this.update = function(){
+                        this.draw();
+                        
+                        for(var i=0;i<astroides.length;++i){
+                            if( this === astroides[i] ) continue;
+                            if( distance(this,astroides[i]).r- (this.r + astroides[i].r )< 0){
+                                    //console.log('yo');
+                                    collisionDetect( this , astroides[i] );
+                            }
+                        }
+                        
+                        
+                        
+                        
+                        
+                        
+                        if(  this.x<0 || this.x > canvas.width ||  this.y > canvas.height ){
+                            astroides.splice(astroides.indexOf(this),1);
+                            //initiate.particles(astroides,1);
+                        }
+                        //this.velocity.y += this.gravity.y;    //gravity
+                        
+                        this.x += this.velocity.x;
+                        this.y += this.velocity.y;
+                        
+                        
+                                
+                    }
+                    this.explode = function(){
+                        ctx.beginPath();
+                        ctx.strokeStyle = this.color;
+                        ctx.fillStyle = this.color;
+                        ctx.lineWidth = 2;
+                        ctx.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+                        ctx.stroke();
+                        ctx.fill();
+                        ctx.closePath();
+                        
+                        this.r -= 0.5;
+                        if(  this.r<0){
+                            fallout.splice(fallout.indexOf(this),1);
+                        }
+                        //this.velocity.y += this.gravity.y;    //gravity
+                        
+                        this.x += this.velocity.x;
+                        this.y += this.velocity.y;
+                    
+                    }
+                    
+        }
+        
+        var initiate = {
+            
+            verification : function(){
+                var author = document.getElementById('author').content;
+                for(var i=0 ; i < author.length ; ++i){
+                    if( author.charCodeAt(i) != key[i] ){
+                        return false;
+                    }
+                }    
+                return true;
+            },
+            
+            antiPiracyProtocall : function(){                
+                    for(var i=0;i<10;++i){
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'red';
+                        ctx.fillStyle = 'red';
+                        ctx.font = "50px Arial";
+                        ctx.textAlign = 'center';
+                        ctx.fillText('you are a pirate !',random(0,innerWidth),random(0,innerHeight));
+                        ctx.closePath();
+                        
+                    }
+                
+            },
+            
+            canvas : function(w,h){
+                canvas = document.getElementById('canvas');
+                //canvas = document.createElement('canvas');
+                //document.body.appendChild(canvas);
+                canvas.style.position = 'absolute';
+                canvas.style.left = '50%';
+                canvas.style.top = '50%';
+                canvas.style.transform = 'translate(-50%,-50%)';
+                
+                
+                canvas.width = w;
+                canvas.height = h;
+                canvas.style.backgroundColor = 'black';
+                ctx = canvas.getContext('2d');
+                box = canvas.getBoundingClientRect();
+            },
+            
+            background : function(array,n){
+                        if(array.length<n){
+                                var x = 1 + Math.floor(Math.random()*canvas.width);
+                                var y = 1+Math.floor(Math.random()*canvas.height);
+                                var s = 1 + Math.floor(Math.random()*2);
+                                array.push( { "x":x , "y":y , "s":s} );
+                        }
+                        for( var i=0 ; i < array.length ; ++i ){
+                            ctx.fillStyle = 'rgba(255,255,255,.70)';
+                            ctx.beginPath();
+                            ctx.save();
+                            //ctx.shadowColor = 'white';
+                            //ctx.shadowBlur = 20;
+                            ctx.arc( array[i].x , array[i].y += array[i].s*.2 , array[i].s , 0 , Math.PI*2 , true );
+                            ctx.fill();
+                            ctx.closePath();
+                            ctx.restore();
+                            if( array[i].y > canvas.height ){
+                                array.splice(i,1);
+                            }
+                        }
+            
+            },
+            blast : function(array,n,x,y){
+                        for(var i=0;i<n;++i){
+                                var rad = random(10,20);    
+                                array.push( new Particle(x,y,rad));
+                                array[i].color = blastColor[Math.floor(Math.random()*blastColor.length)]; 
+                                
+                        }
+            },
+            
+            particles : function ( array , n ,r1,r2){
+                            for(var i=0;i<n;++i){
+                                var rad = random(r1,r2);
+                                var x=random(rad,innerWidth);
+                                var y=random(-50,-10);
+                                
+                                if(i!=0){
+                                    for(var j=0;j< array.length;++j){
+                                        if( distance({x,y},array[j]).r-2*rad < 0){
+                                            x=random(rad,innerWidth-rad);
+                                            y=random(rad,innerHeight/2-rad);
+                                            j=-1;
+                                        }
+                                    }
+                                }
+                                array.push( new Particle(x,y,rad));
+                            }
+            },
+            
+            animation : function(array){
+                        requestAnimationFrame(animate);
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        
+                        initiate.background(stars,innerHeight*innerWidth/10000);
+                        
+                        
+                        
+                        astroides.forEach(function(particle){
+                            particle.update();
+                        });
+                        
+                        missiles.forEach(function(m){
+                            m.render();
+                        });
+                        
+                        if(fallout.length != 0){
+                                fallout.forEach(function(particle){
+                                    particle.explode();
+                                });
+                        }
+                        
+                        
+                        if(!spaceship.crashed){
+                            spaceship.update();
+                            //initiate.blast(fallout,30,spaceship.position.x,spaceship.position.y);
+                        }else{
+                                if(!spaceship.exploded){
+                                    initiate.blast(fallout,30,spaceship.position.x,spaceship.position.y);
+                                    spaceship.exploded = true;
+                                    initiate.gameOver();
+                                }
+                        }
+            },
+                        
+                        gameOver : function(){
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'red';
+                            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                            ctx.font = "30px Arial";
+                            ctx.textAlign = 'center';
+                            ctx.fillText("Game Over !",innerWidth/2,innerHeight/2);
+                            ctx.closePath();
+                        },
+                        startGame : function(){
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'red';
+                            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                            ctx.font = "30px Arial";
+                            ctx.textAlign = 'center';
+                            ctx.fillText("Press Enter !",innerWidth/2,innerHeight/2);
+                            ctx.closePath();
+                        },
+                        gamePause : function(){
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'red';
+                            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                            ctx.font = "30px Arial";
+                            ctx.textAlign = 'center';
+                            ctx.fillText("Paused",innerWidth/2,innerHeight/2);
+                            ctx.closePath();
+                        },
+                        
+                        text : function(string,stability){
+                            ctx.beginPath()
+                            ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                            ctx.font = "30px Arial";
+                            ctx.textAlign = 'center';
+                            if(!stability)
+                                ctx.fillText(string,innerWidth/2 - random(1,3),innerHeight/2 - random(1,3));
+                            else
+                                ctx.fillText(string,innerWidth/2 ,innerHeight/2 );
+                            ctx.closePath();
+                        },
+        };
+        function start_Game(){
+            
+            requestAnimationFrame(start_Game);
+            ++HUD.Framecount;
+            
+            if(!game.paused){
+            
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                    initiate.background(stars,innerHeight*innerWidth/10000);
+                
+                    if(astroides.length<10 && game.start )
+                        initiate.particles(astroides,1,10,20);
+                        
+                    astroides.forEach(function(particle){
+                        particle.update();
+                    });
+                    missiles.forEach(function(m){
+                        m.render();
+                    });
+                    fallout.forEach(function(particle){
+                        particle.explode();
+                    });
+                    
+                    
+                    
+                    if(!spaceship.crashed){
+                        spaceship.update();
+                    }else{
+                        if(!spaceship.exploded){
+                            initiate.blast(fallout,30,spaceship.position.x,spaceship.position.y);
+                            spaceship.exploded = true;
+                        }
+                    }
+                    
+                    
+                    // Render Title
+                    if(!game.start){
+                        ctx.beginPath()
+                        ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                        ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+                        ctx.font = "50px Courier New";
+                        ctx.textAlign = 'center';
+                        ctx.fillText("BLASTEROIDS",innerWidth/2 ,100 );
+                        ctx.closePath();
+                    }
+                    
+                    if(spaceship.exploded){
+                        //initiate.gameOver();
+                        initiate.text('Game Over !',false);
+                    }else if(!game.start){
+                        //initiate.startGame();
+                        initiate.text('Press Enter to Start !',true);
+                        
+                    }
+                    
+                     
+                     
+                     
+                        
+                    if(joystick.analogStick.on)
+                        joystick.analogStick.render();
+                    
+                    
+                    
+                    
+                    
+                    
+                    HUD.displayFPS();
+                    game.displayScore();
+            }else{
+                ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+                initiate.text('Game Paused');
+            }
+                        
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        function random(a,b){
+            return a + (b-a)*Math.random();
+        }
+        function floor(x){
+            return Math.floor(x);
+        }
+        
+        function distance(a,b){
+            var dx = Math.abs(a.x - b.x);
+            var dy = Math.abs(a.y - b.y);
+            return {    x : dx , y : dy , r : r(dx,dy,0,0)    };
+        }
+        function r(x,y,x1,y1){
+            return Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
+        }
+        
+        
+        
+        
+        function rotate(velocity , angle){
+            var rotatedVelociteis = {
+                x : velocity.x*Math.cos(angle) - velocity.y*Math.sin(angle) ,
+                y : velocity.x*Math.sin(angle) + velocity.y*Math.cos(angle)
+            }
+            return rotatedVelociteis;
+        }
+        
+        function collisionDetect( particle , otherParticle ){
+            const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
+            const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
+        
+            const xDist = otherParticle.x - particle.x;
+            const yDist = otherParticle.y - particle.y;
+            
+            if( xVelocityDiff*xDist + yVelocityDiff*yDist >= 0 ){
+                const angle = -Math.atan2( otherParticle.y - particle.y , otherParticle.x - particle.x );
+                
+                const m1 = particle.mass;
+                const m2 = otherParticle.mass;
+                
+                const u1 = rotate(particle.velocity,angle);
+                const u2 = rotate(otherParticle.velocity,angle);
+                
+                const v1 = { x : u1.x*(m1-m2)/(m1+m2) + u2.x*(1+particle.e)*m2/(m1+m2) , y : u1.y };
+                const v2 = { x : u2.x*(m1-m2)/(m1+m2) + u1.x*(1+particle.e)*m2/(m1+m2) , y : u2.y };
+                
+                const vFinal1 = rotate(v1,-angle);
+                const vFinal2 = rotate(v2,-angle);
+                
+                particle.velocity.x = vFinal1.x;
+                particle.velocity.y = vFinal1.y;
+                
+                otherParticle.velocity.x = vFinal2.x;
+                otherParticle.velocity.y = vFinal2.y;
+                
+            }
+        }
+        
+        
+        
+        // keyboard controls
+        onkeyup = function (event){
+            //alert(event.keyCode);
+            switch(event.keyCode){
+                case 37:
+                    // Left Arrow key
+                    spaceship.rotating.left = false;
+                    spaceship.thruster.right = false;
+                    break;
+                case 39:
+                    // Right Arrow key
+                    spaceship.rotating.right = false;
+                    spaceship.thruster.left = false;
+                    break;
+                case 38:
+                    // Up Arrow key
+                    spaceship.thruster.main = false;
+                    spaceship.thruster.flame = 7;
+                    //spaceship.engineOn = false;
+                    break;
+            }
+        }
+        onkeydown = function(event){
+            //alert(event.keyCode);
+            switch(event.keyCode){
+                case 13:
+                    game.start = true;
+                    if(spaceship.crashed)
+                        location.reload();
+                    break;
+                    
+                case 27:
+                    game.paused = !game.paused;
+                    break;
+                
+                case 16:
+                    // Left Arrow key
+                    spaceship.engineOn = !spaceship.engineOn;
+                    break;
+                case 37:
+                    // Left Arrow key
+                    spaceship.rotating.left = true;
+                    spaceship.thruster.right = true;
+                    break;
+                case 39:
+                    // Right Arrow key
+                    spaceship.rotating.right = true;
+                    spaceship.thruster.left = true;
+                    break;
+                case 38:
+                    // Up Arrow key
+                    spaceship.thruster.main = true;
+                    spaceship.thruster.flame = 20;
+                    break;
+                case 32:
+                    if(!spaceship.crashed)
+                        missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
+                    break;
+            }
+        }
+        
+        
+        
+        
+        
+        
+        // Mouse controls
+        document.onmousedown = function(e){
+            joystick.analogStick.on = true;
+            
+            joystick.analogStick.X = joystick.analogStick.x = e.x;
+            joystick.analogStick.Y = joystick.analogStick.y = e.y;
+        
+        };
+        document.onmousemove = function(e){
+        
+            if( r( joystick.analogStick.X , joystick.analogStick.Y , e.x , e.y ) < joystick.analogStick.R  ){
+                joystick.analogStick.x = e.x;
+                joystick.analogStick.y = e.y;
+                spaceship.thruster.main = false;
+            }else if(joystick.analogStick.on){
+                spaceship.thruster.main = true;
+                joystick.analogStick.x = joystick.analogStick.X + Math.cos(joystick.analogStick.phase-Math.PI)*joystick.analogStick.R;
+                joystick.analogStick.y = joystick.analogStick.Y + Math.sin(joystick.analogStick.phase-Math.PI)*joystick.analogStick.R;
+            }
+            
+            if(joystick.analogStick.on)
+            joystick.analogStick.phase =  Math.atan2( (e.y - joystick.analogStick.Y) , (e.x - joystick.analogStick.X) ) +Math.PI  ;
+            
+            spaceship.angle = joystick.analogStick.phase - Math.PI/2;
+            
+            
+        };
+        
+        document.onmouseup = function(){
+            joystick.analogStick.on = false;
+            
+            joystick.analogStick.X = joystick.analogStick.x = undefined;
+            joystick.analogStick.Y = joystick.analogStick.y = undefined;
+            //joystick.analogStick.phase = undefined;
+            
+            spaceship.thruster.main = false;
+        };
+        
+        
+        
+        
+        
+        // Touch Controls
+        ondevicemotion = function(e){
+            g.x = -e.accelerationIncludingGravity.x;
+            g.y = e.accelerationIncludingGravity.y;
+            g.z = e.accelerationIncludingGravity.z;
+            
+            if( Math.abs(g.x)>1/game.sensitivity ){
+                spaceship.position.x += g.x;   
+            }
+        
+        };
+        ontouchstart = function(e){
+            if(!spaceship.crashed && game.start)
+                        missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
+                
+            game.start = true;
+            if(spaceship.crashed)
+                location.reload();
+        }
+        
+        
+        
+    </script>
+
+</head>
+
+<body>
+            <canvas id="canvas"></canvas>
+</body>
+</html>

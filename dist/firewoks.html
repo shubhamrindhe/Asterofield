@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>fireworks</title>
+	<style>
+		body{
+			padding:0;
+			margin:0;
+			background-color:#ccc;
+		}
+	</style>
+
+	
+
+</head>
+	<body>
+		<canvas	id='canvas'></canvas>
+		
+	</body>
+</html>
+
+<script type="text/javascript">
+	
+	var canvas,ctx;
+	var W,H,N =35;
+	var particles = [];
+	var fireworks = [];
+	var fallout = [];
+	var mouse = {
+			x : undefined,
+			y : undefined
+		};
+	var friction = 1;
+	var ge = 1
+	var blastColor = ['orange','yellow','grey'];
+
+				
+	window.onload = function(){
+			
+		initiate.canvas('canvas',innerWidth,innerHeight);		
+		//initiate.particles(particles,5);
+		//initiate.blast(fallout,random(30,50));
+		
+		initiate.animation(fallout);
+		
+		//animate(particles);
+	};
+	window.onresize = function(){
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;	
+	};
+	window.onmousemove = function(evt){
+			mouse.x = evt.x;
+			mouse.y = evt.y;
+	};
+	
+	window.onmousedown = function (){
+
+				
+				initiate.blast(fallout,30);	
+	};
+	window.onmouseup = function(){
+			
+	};
+
+
+
+	function Particle(x,y,r){
+	
+		this.x = x;
+		this.y = y;
+		this.r = r;
+		this.red =random(0,255);
+		this.blue =random(0,255);
+		this.green=random(0,255);
+		this.color = blastColor[Math.floor(Math.random()*blastColor.length)];
+		this.a=1;
+		
+		
+		this.radian = Math.random()*Math.PI*2;
+		this.speed = random(3,5);
+		this.velocity={
+			x : this.speed*Math.cos(this.radian), 
+			y : this.speed*Math.sin(this.radian) 
+		};
+		this.gravity = {
+			x : 0,
+			y : 0,
+		}
+		
+		
+				
+		this.draw = function(){
+			
+			ctx.beginPath();
+			ctx.strokeStyle = this.color;
+			ctx.fillStyle = this.color;
+			ctx.lineWidth = 2;
+			ctx.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+			ctx.stroke();
+			ctx.fill();
+			ctx.closePath();
+			
+			ctx.font = "arial 5px ";
+			ctx.fillText(fallout.length,100,100);
+			
+		}
+		this.update = function(particles){
+			this.draw();
+			//this.a -= 0.006;
+			this.r -= 0.5;
+			if(  this.r<0){
+				fallout.splice(fallout.indexOf(this),1);
+			}
+			
+			
+			
+			
+		
+			
+			
+			this.velocity.y += this.gravity.y;	//gravity
+			this.velocity.x += this.gravity.x;	//gravity
+			
+			this.x += this.velocity.x;
+			this.y += this.velocity.y;
+			
+			
+					
+		}
+
+	}
+			
+	
+	
+	/*		
+
+	function animate(array){
+		
+		window.requestAnimationFrame(function(){ animate(array);});
+		
+		ctx.save();
+		ctx.fillStyle = 'white';
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+		
+		
+		
+		array.forEach(function(particle){
+			particle.update();
+			//particle.draw();
+		});
+		
+		
+		ctx.restore();
+		
+		return this;
+		
+	}
+	*/
+	
+	
+	var initiate = {
+			canvas : function(id,w,h){
+						canvas = document.getElementById(id);
+						canvas.style.position = 'absolute';
+						canvas.style.top = '50%';
+						canvas.style.left = '50%';
+						canvas.style.transform = 'translate(-50%,-50%)';
+						
+						canvas.width = w;
+						canvas.height = h;
+						W = canvas.width;
+						H = canvas.height;	
+						canvas.style.backgroundColor = 'black';
+						
+						ctx = canvas.getContext('2d');	
+			
+			},		
+			particles : function ( array , n ){
+							for(var i=0;i<n;++i){
+								var rad =random(.5,2);
+								var x=random(rad,innerWidth-rad);
+								var y=random(rad,innerHeight-rad);
+								
+								if(i!=0){
+									for(var j=0;j< array.length;++j){
+										if( distance(x,y,array[j].x,array[j].y)-2*rad < 0){
+											x=random(rad,innerWidth-rad);
+											y=random(rad,innerHeight-rad);
+											j=-1;
+										}
+									}
+								}
+								array.push( new Particle(x,y,rad));
+							}
+			},	
+			blast : function(array,n){
+						for(var i=0;i<n;++i){
+								var rad = random(10,20);
+								var x=mouse.x;
+								var y=mouse.y;
+								//alert(array);
+								fallout.push( new Particle(x,y,rad));
+							}
+			},
+			animation : function(array){
+						window.requestAnimationFrame(function(){initiate.animation(array);});
+		
+						ctx.save();
+						
+						//trail
+						//ctx.fillStyle = 'rgba(0,0,0,.2)';
+						//ctx.fillRect(0,0,canvas.width,canvas.height);
+						
+						ctx.clearRect(0,0,canvas.width,canvas.height);
+						
+						array.forEach(function(particle){
+							particle.update(array);
+							//particle.draw();
+						});
+						
+						ctx.restore();
+			},
+	
+	}//initiate
+	
+	
+	
+	
+	
+	
+	
+			
+	function distance(x1,y1,x2,y2){
+		return Math.sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+	}
+
+	function random(a,b){
+		return a + Math.random()*(b-a); 
+	}
+	
+	
+	
+		
+	
+		
+	</script>

@@ -1,0 +1,11 @@
+@font-face{
+	font-family:HACKED;
+	src:url("../files/fonts/HACKED.ttf");
+}
+
+
+body,*{
+    padding:0;
+    margin:0;
+	background:#000;
+}

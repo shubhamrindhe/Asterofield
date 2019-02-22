@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>theGame</title>
+	<style>
+		body{
+			padding:0;
+			margin:0;
+			background-color:#ccc;
+		}
+		.container{
+			position:absolute;/*relative;*/
+			left:50%;
+			top:50%;
+			transform:translate(-50%,-50%);
+		}
+		#status{
+			position:absolute;
+			top:-300px;
+		}
+		#buttons{
+			position:absolute;
+			top:200px;
+		}
+		
+		canvas{
+			position:absolute;
+			left:50%;
+			top:50%;
+			transform:translate(-50%,-50%);
+			border: 2px solid black;
+			background-color : #fff;
+		}
+		
+	</style>
+			
+			
+			
+			
+	<script type="text/javascript">
+	
+		var canvas;
+		var ctx;
+			
+		window.onload = function(load){
+	
+			canvas = document.getElementById('canvas');
+			ctx = canvas.getContext('2d');
+			canvasWidth = ctx.canvas.width;
+			canvasHeight = ctx.canvas.height;
+					
+			//document.addEventListener('keydown',control);
+			//document.addEventListener('keyup',function(){launcher.dir = ''; });
+					
+			var enemies = [ {'id':'one','x':100,'y':-20,'bg':'red','w':40,'h':20},
+							{'id':'two','x':225,'y':-20,'bg':'red','w':40,'h':20},
+							{'id':'three','x':350,'y':-20,'bg':'red','w':40,'h':20},
+							{'id':'four','x':100,'y':-70,'bg':'red','w':40,'h':20},
+							{'id':'five','x':225,'y':-70,'bg':'red','w':40,'h':20},
+							{'id':'six','x':350,'y':-70,'bg':'red','w':40,'h':20}
+							];
+							
+			function renderEnemies(){
+				for( var i=0 ; i < enemies.length ; ++i ){
+					ctx.fillStyle = 'red';
+					ctx.fillRect( enemies[i].x , enemies[i].y+=.5 , enemies[i].w , enemies[i].h );
+				}
+			}
+					
+
+			function Launcher(){
+					this.y=280,
+					this.x=canvasWidth*.5-25,
+					this.w=50,
+					this.h=50,
+					this.dir,
+					this.bg="orange",
+					this.missiles= new Array();
+						
+					this.render = function(){
+						if( this.dir == 'left' ){
+							this.x -= 5;
+						}else if( this.dir == 'right' ){
+							this.x += 5;
+						}
+						ctx.fillStyle = this.bg;
+						ctx.fillRect(this.x,this.y,this.w,this.h);
+						for( var i=0 ; i < this.missiles.length ; ++i){
+							var m = this.missiles[i];
+							ctx.fillStyle = m.bg;
+							ctx.fillRect(m.x,m.y -=5,m.w,m.h);
+							this.hitDetect(this.missiles[i],i);
+							if(m.y<=0){
+								this.missiles.splice(i,1);
+							}
+						}
+						if(enemies.length == 0){
+							clearInterval(animateInterval);
+							ctx.fillStyle = '#FC0';
+							ctx.font = 'italic bold 36px Arial,sans-serif';
+							ctx.fillText("level Complete",canvasWidth*.5-130,50,300);
+						}
+					}//render 
+						
+					this.hitDetect = function(m,mi){
+						for( var i=0; i < enemies.length ;i++){
+							var e = enemies[i];
+							if( m.x + m.w >= e.x && m.x <= e.x +e.w && m.y >= e.y && m.y <= e.y + e.h ){
+								this.missiles.splice(this.missiles[mi],1);											
+								enemies.splice(i,1);
+								document.getElementById('status').innerHTML = e.id+" Destroyed !!";
+							}
+						}
+					}//hitDetect
+					
+					
+			}//Launcher
+				
+			var launcher = new Launcher();
+
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+			function animate(){
+				//ctx.save();		
+				ctx.clearRect(0,0,canvasWidth,canvasHeight);
+				launcher.render();
+				renderEnemies();	
+				//ctx.restore();
+			}
+			var animateInterval = setInterval(animate,30);
+					
+					
+					
+
+					//Buttons
+					// mouseControls
+					var left = document.getElementById('left');
+					var right = document.getElementById('right');
+					var fire = document.getElementById('fire');
+					
+					left.addEventListener('mousedown',function(evt){
+						launcher.dir = 'left'; 
+					});
+					
+					left.addEventListener('mouseup',function(evt){
+						launcher.dir = ''; 
+					});
+				
+				
+					right.addEventListener('mousedown',function(evt){
+						launcher.dir = 'right'; 
+					});
+					
+					right.addEventListener('mouseup',function(evt){
+						launcher.dir = ''; 
+					});
+					
+					
+					fire.addEventListener('mousedown',function(evt){
+						launcher.missiles.push( {"x":launcher.x+launcher.w*.5,"y":launcher.y,"w":3,"h":10,"bg":"red"} );
+					});
+
+					
+					
+					
+			//keyboard controls
+			document.onkeydown = function control(evt){
+					switch (evt.keyCode) {
+						case 37 :
+							launcher.dir = 'left';
+							break;					
+						case 39 :
+							launcher.dir = 'right';
+							break;				
+						case 32 :
+							launcher.missiles.push( {"x":launcher.x+launcher.w*.5,"y":launcher.y,"w":3,"h":10,"bg":"red"} );
+							break;
+						default:
+						}
+					}
+			document.onkeyup = function(){
+							launcher.dir = ''; 
+			}
+					
+			
+		};
+			
+			
+					
+					
+					
+			
+			
+			
+			
+		
+		
+	</script>
+
+</head>
+
+<body id="body" >
+			
+			
+			<div class="container">
+				
+				<h2 id="status"></h2>
+				
+				<canvas  onclick="toggleDraw()" id="canvas" class="canvas" width="500px" height="350px"></canvas>
+				
+				<div id='buttons'>
+				<button id='left'>left</button>
+				<button id='fire'>fire</button>
+				<button id='right'>right</button>
+				</div>
+				
+				<!--h2 id="status"></h2-->
+			
+			</div>
+			
+			
+</body>
+</html>
