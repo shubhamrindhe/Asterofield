@@ -1,13 +1,14 @@
-
 	var canvas,ctx,box;
 	var spaceship;
 	var joystick;
+	
+	var device;
         
     var stars = new Array();
     var fallout = new Array();
     var missiles = new Array();
     var astroides = new Array();
-    var blastColor = ['orange','yellow','grey'];
+    var blastColor = ['orange','yellow'];
 	
 	var max_astro = innerWidth< innerHeight ? 5 : 10 ;
         
@@ -17,7 +18,16 @@
 	
 	var animLoopReqID ;
         
-    onload = function(){
+	
+	var bloodhounds = [];
+
+	
+    window.onload = function(){
+		
+		if(innerHeight>innerWidth)
+			device = 'mob';
+		else	
+			device = 'mon';
 		
         initiate.canvas(innerWidth,innerHeight);
 		
@@ -25,7 +35,7 @@
 		
 		joystick = new Joystick();
 		
-		Star.init(100);
+		Star.init(device);
             
         if(initiate.verification())
             animLoopReqID = requestAnimationFrame(astrofield);
@@ -36,6 +46,8 @@
             HUD.FPS = HUD.Framecount ;
             HUD.Framecount = 0;
         },1000);
+		
+		
     };
 	
 	function init(){
@@ -47,15 +59,10 @@
         game.sensitivity = 3;
         game.mode = 'hardcore';
 		
-		astroides = [];
-       
-        
+		astroides = [];	
+		bloodhounds = [];
+		for(var i=0;i<5;++i){
+			bloodhounds.push(new Vehical(random(0,innerWidth),random(0,innerHeight)));
+		}
 		
 	}
-
-
-        
-
-        
-        
-        

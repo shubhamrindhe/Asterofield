@@ -2,15 +2,26 @@
 
 		class Star{
 			
-			constructor(){
+			constructor(min,max){
 				this.x = Math.floor(random(-canvas.width/2,canvas.width/2));
 				this.y = Math.floor(random(-canvas.width/2,canvas.height/2));
 				this.z = Math.floor(random(100,canvas.width));
-				this.r = Math.floor(random(5,10));
+				this.r = Math.floor(random(4,7));
 				this.speed = 10;
 			}
 			
-			static init(n){
+			static init(device){
+				var n,min,max;
+				if(device=='mob'){
+					n = 50;
+					min = 3;
+					max = 7;
+				}else{
+					n = 100;
+					min = 5;
+					max = 10;
+				}
+				
 				Star.stars = [];
 				for(var i=0;i<n;++i){
 					Star.stars[i] = new Star();
@@ -50,10 +61,13 @@
 		
 		function glitch(string,x,y,offset,font){
 			var disp_x = random(-offset,offset);
-			var disp_y = random(-offset,offset);
+			var disp_y = 0;//random(-offset,offset);
+			
+			
 			ctx.beginPath()
             ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
             ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(0,255,0,0.8)';//'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+            //ctx.fillStyle = 'rgba(0,0,255,1)';
             ctx.font = ""+font+"px HACKED";
             ctx.textAlign = 'center';
 			//ctx.fillText(string,x + random(-offset,offset),y + random(-offset,offset) );
@@ -63,6 +77,7 @@
 			ctx.beginPath()
             ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
             ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(255,0,0,0.8)';
+            //ctx.fillStyle = 'rgba(255,0,0,1)';
             ctx.font = ""+font+"px HACKED";
             ctx.textAlign = 'center';
             //ctx.fillText(string,x + random(-offset,offset),y + random(-offset,offset) );

@@ -97,7 +97,15 @@
                     ctx.rotate(this.angle);
                     
                     this.draw();
-                    
+					/*
+					ctx.beginPath();
+					ctx.moveTo(0,0);
+					ctx.lineTo(0,-300);
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = 'white';
+					ctx.stroke();
+					ctx.closePath();
+                    */
                     
                     if(this.engineOn)
                     {

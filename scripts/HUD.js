@@ -12,10 +12,10 @@
                 ctx.font = "20px Arial";
                 ctx.textAlign = 'end';
                 ctx.textBaseline = 'top'; 
-                ctx.fillText("Score : "+game.score ,canvas.width,0);
+                ctx.fillText("Score : "+this.score ,canvas.width,0);
                 ctx.closePath();
             
-            },
+            }
         };
         var HUD = {
             Framecount : 0,

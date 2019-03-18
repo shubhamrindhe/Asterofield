@@ -9,3 +9,17 @@ body,*{
     margin:0;
 	background:#000;
 }
+
+#startBtn{
+	position:absolute;
+	left:50%;
+	top:50%;
+	transform:translate(-50%,-50%);
+	color:white;
+	
+	width:100px;
+	height:100px;
+	
+	border:2px solid #fff;
+	border-radius:50%;
+}

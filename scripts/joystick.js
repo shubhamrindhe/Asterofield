@@ -132,6 +132,9 @@
 			//alert('mov');
 			
 			if(!spaceship.crashed){
+				initiate.canvas(innerWidth,innerHeight);
+				setFullscreen(canvas);
+				
 				window.cancelAnimationFrame(animLoopReqID);
 				game.start = true;
 				animLoopReqID = requestAnimationFrame(game);
@@ -210,6 +213,8 @@
             //alert(event.keyCode);
             switch(event.keyCode){
                 case 13:
+					initiate.canvas(innerWidth,innerHeight);
+					setFullscreen(canvas);
 					if(!spaceship.crashed){
 						window.cancelAnimationFrame(animLoopReqID);
 						game.start = true;
@@ -219,6 +224,7 @@
 						window.cancelAnimationFrame(animLoopReqID);
                         animLoopReqID = requestAnimationFrame(astrofield);
 						init();
+						//setFullscreen(canvas);
 					}	
                     break;
                     
@@ -245,7 +251,9 @@
                     break;
                 case 32:
                     if(!spaceship.crashed && spaceship.power ==25 ){
-                        missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
+                        //missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
+						
+						bloodhounds.push(new Vehical(spaceship.position.x,spaceship.position.y));
 						spaceship.power = 0;
 					}	
                     break;

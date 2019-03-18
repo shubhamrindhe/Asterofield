@@ -36,12 +36,16 @@
                         if(!spaceship.exploded){
                             initiate.blast(fallout,20,spaceship.position.x,spaceship.position.y);
                             spaceship.exploded = true;
+							
+							
+							initiate.canvas(innerWidth,innerHeight);
+							exitFullscreen();
                         }
                     }
                     
                     // Render Title
                     if(!game.start){
-                        glitch("BattleSpace",canvas.width/2 ,canvas.height/2-100,3 );
+                        glitch("BattleSpace",canvas.width/2 ,canvas.height/2-100,3);
                     }
                     
                     if(spaceship.exploded){
@@ -52,12 +56,43 @@
                         
                         
                     }
+					
+					
+					
+					bloodhounds.forEach( vehical => {
+						
+						vehical.eat(astroides);
+						vehical.update();
+						
+						if(vehical.hitpoints<=0)
+							bloodhounds.splice(bloodhounds.indexOf(vehical),1);
+						
+						
+						vehical.render();
+						
+						
+						
+					});
+					
+					
                       
                     if(joystick.analogStick.on)
                         joystick.renderAnalogStick();
+					
+					
+					
                     
-                    //HUD.displayFPS();
-                    //game.displayScore();
+                    HUD.displayFPS();
+					
+					ctx.beginPath()
+					ctx.strokeStyle = 'lightblue';
+					ctx.fillStyle = 'lightblue'; 
+					ctx.font = "20px Arial";
+					ctx.textAlign = 'end';
+					ctx.textBaseline = 'top'; 
+					ctx.fillText("Score : "+game.score ,canvas.width,0);
+					ctx.closePath();
+					
             }else{
                 ctx.save();
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -72,7 +107,7 @@
 						if(array.length<n){
 								var x = 1 + Math.floor(Math.random()*canvas.width);
 								var y = 1+Math.floor(Math.random()*canvas.height);
-								var s = 1 + Math.floor(Math.random()*2);
+								var s = 1 + Math.floor(Math.random()*5);
 								array.push( { "x":x , "y":y , "s":s} );
 						}
 						for( var i=0 ; i < array.length ; ++i ){
@@ -81,7 +116,10 @@
 							ctx.save();
 							//ctx.shadowColor = 'white';
 							//ctx.shadowBlur = 20;
-							ctx.arc( array[i].x , array[i].y += array[i].s*.2 , array[i].s , 0 , Math.PI*2 , true );
+							//ctx.arc( array[i].x , array[i].y += array[i].s*.2 , array[i].s , 0 , Math.PI*2 , true );
+							
+							ctx.fillRect(array[i].x , array[i].y += array[i].s*.1 , array[i].s ,array[i].s );
+							
 							ctx.fill();
 							ctx.closePath();
 							ctx.restore();

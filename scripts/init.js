@@ -73,8 +73,11 @@
                             ctx.save();
                             //ctx.shadowColor = 'white';
                             //ctx.shadowBlur = 20;
-                            ctx.arc( array[i].x , array[i].y += array[i].s*.2 , array[i].s , 0 , Math.PI*2 , true );
-                            ctx.fill();
+                            //ctx.arc( array[i].x , array[i].y += array[i].s*.2 , array[i].s , 0 , Math.PI*2 , true );
+                            
+							ctx.fillRect(array[i].x , array[i].y += array[i].s*.2 , array[i].s,array[i].s);
+							
+							ctx.fill();
                             ctx.closePath();
                             ctx.restore();
                             if( array[i].y > canvas.height ){
