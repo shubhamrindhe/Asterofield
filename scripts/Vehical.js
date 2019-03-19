@@ -16,8 +16,8 @@
 			y : 0
 		}
 		
-		this.w = 6;
-		this.h = 12;
+		this.w = 4;
+		this.h = 10;
 		
 		this.hitpoints = 100;
 		
@@ -87,20 +87,21 @@
 				}
 			}
 			
-			if(record<list[nearest].r+this.r){
-				//list[nearest] = {x:random(0,innerWidth),y:random(0,innerHeight)};
-				initiate.blast(fallout,15,list[nearest].x,list[nearest].y);
-				list.splice(nearest,1);
-				
-				game.score++;
-				
-				this.hitpoints -= 10;
-				//initiate.blast(fallout,15,list[nearest].x,list[nearest].y);
-			}else if(nearest>-1){
-				this.seek(list[nearest]);
-				//return this.seek(list[nearest]);
+			if(nearest!=-1){
+				if(record<list[nearest].r+this.r ){
+					//list[nearest] = {x:random(0,innerWidth),y:random(0,innerHeight)};
+					initiate.blast(fallout,15,list[nearest].x,list[nearest].y);
+					list.splice(nearest,1);
+					
+					game.score++;
+					
+					this.hitpoints -= 10;
+					//initiate.blast(fallout,15,list[nearest].x,list[nearest].y);
+				}else if(nearest>-1){
+					this.seek(list[nearest]);
+					//return this.seek(list[nearest]);
+				}
 			}
-			
 			//return {x:0,y:0};
 			
 		
@@ -156,7 +157,7 @@
                 ctx.lineTo(-this.w*0.5-4,4);
                 ctx.lineTo(-this.w*0.5,4);
                 ctx.closePath();
-                ctx.fillStyle = 'white';    
+                ctx.fillStyle = 'blue';    
                 ctx.fill(); 
 				
 				ctx.beginPath();
@@ -164,7 +165,7 @@
                 ctx.lineTo(this.w*0.5+4,4);
                 ctx.lineTo(this.w*0.5,4);
                 ctx.closePath();
-                ctx.fillStyle = 'white';    
+                ctx.fillStyle = 'blue';    
                 ctx.fill(); 
 				
 				
@@ -186,6 +187,15 @@
                 ctx.closePath();
                 ctx.fillStyle = 'orange';    
                 ctx.fill();   
+				
+				ctx.beginPath();
+                ctx.moveTo(-this.w*0.5,this.h+3);
+                ctx.lineTo(this.w*0.5,this.h+3);
+                ctx.lineTo(0, this.h+3 + Math.random()*10);
+                //ctx.lineTo( -5,10);
+                ctx.closePath();
+                ctx.fillStyle = 'yellow';    
+                ctx.fill(); 
 				
 				
 			ctx.restore();

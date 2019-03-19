@@ -66,3 +66,26 @@
 		}
 		
 	}
+	
+	
+	function generate( array ,r1,r2){
+		var par;
+		for(var i=0;i<1;++i){
+            var rad = random(r1,r2);
+            var x=random(rad,innerWidth);
+            var y=random(-50,-10);
+            if(i!=0){
+                for(var j=0;j< array.length;++j){
+					if( distance({x,y},array[j]).r-2*rad < 0){
+						x=random(rad,innerWidth-rad);
+						y=random(rad,innerHeight/2-rad);
+						j=-1;
+					}
+					
+				}
+			}
+			par =  new Particle(x,y,rad);
+        }
+		return par;
+	}
+	

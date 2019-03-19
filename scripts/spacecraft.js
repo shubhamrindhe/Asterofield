@@ -27,6 +27,10 @@
                 w : 4,
                 h : 11,
             };
+			
+			this.shield = 100;
+			
+			this.weapon = 'missile'; 
             
             this.crashed = false;
             this.exploded = false;
@@ -109,16 +113,45 @@
                     
                     if(this.engineOn)
                     {
-                        this.renderFlame(0,this.height * 0.5,this.w,this.thruster.flame,'orange');
+                        this.renderFlame(0,3+this.height * 0.5,this.w,this.thruster.flame,'orange');
                     }
                     if(this.thruster.left)
                     {
-                        this.renderFlame(this.width*-.5 + this.thruster.w/2,this.height * 0.5,this.thruster.w,this.thruster.flame,'orange');
+                        this.renderFlame(this.width*-.5 + this.thruster.w/2,2 + this.height * 0.5,this.thruster.w,this.thruster.flame,'orange');
                     }
                     if(this.thruster.right)
                     {
-                        this.renderFlame(this.width*.5 - this.thruster.w/2,this.height * 0.5,this.thruster.w,this.thruster.flame,'orange');
+                        this.renderFlame(this.width*.5 - this.thruster.w/2,2 + this.height * 0.5,this.thruster.w,this.thruster.flame,'orange');
                     }
+					
+					if(this.shield!=undefined || this.shield!=null){
+						ctx.beginPath();
+						var rgrad = ctx.createRadialGradient(0,0,this.shield*0.95,0,0,this.shield);
+						rgrad.addColorStop(0.9,'rgba(255,255,255,0)');
+						rgrad.addColorStop(1,'rgba(255,255,255,0.6)');
+						ctx.fillStyle = rgrad;
+						
+						ctx.arc(0,0,this.shield,0,Math.PI*2,true);
+						
+						//ctx.stroke();
+						ctx.fill();
+						
+						ctx.closePath();
+						
+					}
+					
+					/*
+					ctx.beginPath();
+                var rgrad = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);
+                ctx.moveTo(f.x,f.y);
+                rgrad.addColorStop(0,'white');
+                rgrad.addColorStop(.8,'rgba(255,255,255,0)');
+                ctx.fillStyle = rgrad;
+                ctx.arc(f.x,f.y,f.r,0,Math.PI*2,true);
+                ctx.fill();
+                ctx.closePath();
+					*/
+					
                     ctx.restore();
             }
             this.update = function(){
@@ -150,11 +183,29 @@
 					for(var i=0;i<astroides.length;++i){
 						this.crashDetect(astroides[i]);
 						
+						if(this.shield!=undefined||this.shield!=null){
+							if(distance(this.position,astroides[i]).r < astroides[i].r + this.shield ){
+								initiate.blast(fallout,15,astroides[i].x,astroides[i].y);
+                            
+								astroides.splice(i,1);
+								
+									this.shield -= 10;
+									
+							}	
+						}
+						
 					}
+					
+					if(this.shield < r(this.w,this.h,0,0))
+						this.shield = null;
+					
+					
+					
 					
                     /*astroides.forEach(function(particle){
                     });
                     */
+					
                     
                     switch(game.mode){
                         case 'easy' : 
@@ -189,6 +240,19 @@
 				if(distance(this.position,particle).r < particle.r + r(this.width/2,this.height/2,0,0)){
                             this.crashed = true;
                 }
+			}
+			
+			this.toggleWeapon = function(){
+				if(this.weapon=='missile')
+					this.weapon = 'bloodhound';
+				else if(this.weapon=='bloodhound')
+					this.weapon = 'missile';
+				
+			}
+			
+			this.activateShield = function(){
+				this.shield = new Particle(this.position.x,this.position.y,this.r*2);
+				
 			}
 			
         }

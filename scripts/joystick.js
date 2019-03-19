@@ -234,7 +234,10 @@
                 
                 case 16:
                     // Left Arrow key
-                    spaceship.engineOn = !spaceship.engineOn;
+                    //spaceship.engineOn = !spaceship.engineOn;
+					
+					spaceship.toggleWeapon();
+					
                     break;
                 case 37:
                     // Left Arrow key
@@ -251,9 +254,10 @@
                     break;
                 case 32:
                     if(!spaceship.crashed && spaceship.power ==25 ){
-                        //missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
-						
-						bloodhounds.push(new Vehical(spaceship.position.x,spaceship.position.y));
+                        if(spaceship.weapon == 'missile')
+							missiles.push(new Missile(spaceship.position.x,spaceship.position.y,spaceship.angle));
+						else if(spaceship.weapon=='bloodhound')
+							bloodhounds.push(new Vehical(spaceship.position.x,spaceship.position.y));
 						spaceship.power = 0;
 					}	
                     break;

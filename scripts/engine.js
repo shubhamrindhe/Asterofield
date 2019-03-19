@@ -18,7 +18,8 @@
                         initiate.particles(astroides,1,10,20);
                         
                     astroides.forEach(function(particle){
-                        particle.update();
+                        particle.update(astroides);
+						particle.draw();
                     });
 					
                     missiles.forEach(function(m){
@@ -27,6 +28,8 @@
                     fallout.forEach(function(particle){
                         particle.explode();
                     });
+					
+					//spaceship.shield.update(astroides);
                     
                     
                     
@@ -38,8 +41,9 @@
                             spaceship.exploded = true;
 							
 							
-							initiate.canvas(innerWidth,innerHeight);
 							exitFullscreen();
+							initiate.canvas(innerWidth,innerHeight);
+							
                         }
                     }
                     

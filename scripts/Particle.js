@@ -34,12 +34,12 @@
                         ctx.closePath();            
                         
                     }
-                    this.update = function(){
-                        this.draw();
+                    this.update = function(astroides){
+                        
                         
                         for(var i=0;i<astroides.length;++i){
                             if( this === astroides[i] ) continue;
-                            if( distance(this,astroides[i]).r- (this.r + astroides[i].r )< 0){
+                            if( distance(this,astroides[i]).r - (this.r + astroides[i].r )< 0){
                                     //console.log('yo');
                                     collisionDetect( this , astroides[i] );
                             }
