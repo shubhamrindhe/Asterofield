@@ -89,8 +89,8 @@
             blast : function(array,n,x,y){
                         for(var i=0;i<n;++i){
                                 var rad = random(10,20);    
-                                array.push( new Particle(x,y,rad));
-                                array[i].color = blastColor[Math.floor(Math.random()*blastColor.length)]; 
+                                array.push( new Particle(x,y,rad,blastColor[Math.floor(Math.random()*blastColor.length)]));
+                                //array[i].color = blastColor[Math.floor(Math.random()*blastColor.length)]; 
                                 
                         }
             },

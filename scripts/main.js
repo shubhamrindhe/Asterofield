@@ -8,7 +8,7 @@
     var fallout = new Array();
     var missiles = new Array();
     var astroides = new Array();
-    var blastColor = ['orange','yellow'];
+    var blastColor = ['orange','yellow','gray'];
 	
 	var max_astro = innerWidth< innerHeight ? 5 : 10 ;
         

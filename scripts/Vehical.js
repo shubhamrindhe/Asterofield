@@ -6,7 +6,7 @@
 			x : x,
 			y : y
 		}
-		this.speed = 5;
+		this.speed = 20;
 		this.velocity ={
 			x : 0,
 			y : -this.speed
@@ -23,7 +23,7 @@
 		
 		this.phase;
 		this.r = Math.sqrt(this.w*this.w+this.h*this.h);
-		this.maxForce =0.5;
+		this.maxForce =1;
 		
 		
 		this.update = function(){

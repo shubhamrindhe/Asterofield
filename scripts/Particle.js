@@ -1,11 +1,11 @@
     
         
-        function Particle(x,y,r){
+        function Particle(x,y,r,color){
                 
                     this.x = x;
                     this.y = y;
                     this.r = r;
-                    this.color = 'rgba(180,180,180,1)';
+                    this.color = color || 'rgba(180,180,180,1)';
                     this.velocity={
                         x : random(-2,2), 
                         y : random(2,5)

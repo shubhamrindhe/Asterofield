@@ -59,15 +59,17 @@
 		}
 		
 		
-		function glitch(string,x,y,offset,font){
+		function glitch(string,x,y,offset,font ,prob=0.1){
 			var disp_x = random(-offset,offset);
 			var disp_y = 0;//random(-offset,offset);
 			
 			
+			if(Math.random()<prob){
+			
 			ctx.beginPath()
             ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
-            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(0,255,0,0.8)';//'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
-            //ctx.fillStyle = 'rgba(0,0,255,1)';
+            //ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(0,255,0,0.8)';//'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+            ctx.fillStyle = 'rgba(0,0,255,1)';
             ctx.font = ""+font+"px HACKED";
             ctx.textAlign = 'center';
 			//ctx.fillText(string,x + random(-offset,offset),y + random(-offset,offset) );
@@ -76,13 +78,15 @@
 			
 			ctx.beginPath()
             ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
-            ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(255,0,0,0.8)';
-            //ctx.fillStyle = 'rgba(255,0,0,1)';
+            //ctx.fillStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';//'rgba(255,0,0,0.8)';
+            ctx.fillStyle = 'rgba(255,0,0,1)';
             ctx.font = ""+font+"px HACKED";
             ctx.textAlign = 'center';
             //ctx.fillText(string,x + random(-offset,offset),y + random(-offset,offset) );
             ctx.fillText(string,x - disp_x ,y - disp_y );
             ctx.closePath();
+		
+			}else{
 			
 			ctx.beginPath();
             ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
@@ -92,4 +96,5 @@
             ctx.fillText(string,x,y);
             ctx.closePath();
 			
+			}
 		}
