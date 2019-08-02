@@ -85,6 +85,15 @@
             //ctx.fillText(string,x + random(-offset,offset),y + random(-offset,offset) );
             ctx.fillText(string,x - disp_x ,y - disp_y );
             ctx.closePath();
+			
+			
+			ctx.beginPath();
+            ctx.strokeStyle = 'rgb('+random(0,255)+','+random(0,255)+','+random(0,255)+')';
+            ctx.fillStyle = 'rgba(255,255,255,1)';
+            ctx.font = ""+font+"px HACKED";
+            ctx.textAlign = 'center';
+            ctx.fillText(string,x,y);
+            ctx.closePath();
 		
 			}else{
 			
@@ -97,4 +106,7 @@
             ctx.closePath();
 			
 			}
+			
+			
+			
 		}

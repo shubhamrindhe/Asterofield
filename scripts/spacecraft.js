@@ -128,7 +128,7 @@
 						ctx.beginPath();
 						var rgrad = ctx.createRadialGradient(0,0,this.shield*0.95,0,0,this.shield);
 						rgrad.addColorStop(0.9,'rgba(255,255,255,0)');
-						rgrad.addColorStop(1,'rgba(255,255,255,1)');
+						rgrad.addColorStop(1,'rgba(255,255,255,0.3)');
 						ctx.fillStyle = rgrad;
 						
 						ctx.arc(0,0,this.shield,0,Math.PI*2,true);

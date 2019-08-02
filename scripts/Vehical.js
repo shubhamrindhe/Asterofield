@@ -23,7 +23,7 @@
 		
 		this.phase;
 		this.r = Math.sqrt(this.w*this.w+this.h*this.h);
-		this.maxForce =1;
+		this.maxForce =0.5;
 		
 		
 		this.update = function(){
@@ -178,11 +178,14 @@
 				ctx.fill();
 				ctx.closePath();
                   */      
-				//this.renderFlame(0,this.h * 0.5);    
+				//this.renderFlame(0,this.h * 0.5); 
+
+				var flame = r(this.velocity.x,this.velocity.y,0,0 );
+				
                 ctx.beginPath();
                 ctx.moveTo(-this.w,this.h+3);
                 ctx.lineTo(this.w,this.h+3);
-                ctx.lineTo(0, this.h+3 + Math.random()*20);
+                ctx.lineTo(0, this.h+3 + flame);
                 //ctx.lineTo( -5,10);
                 ctx.closePath();
                 ctx.fillStyle = 'orange';    
@@ -191,7 +194,7 @@
 				ctx.beginPath();
                 ctx.moveTo(-this.w*0.5,this.h+3);
                 ctx.lineTo(this.w*0.5,this.h+3);
-                ctx.lineTo(0, this.h+3 + Math.random()*10);
+                ctx.lineTo(0, this.h+3 + flame/2);
                 //ctx.lineTo( -5,10);
                 ctx.closePath();
                 ctx.fillStyle = 'yellow';    
