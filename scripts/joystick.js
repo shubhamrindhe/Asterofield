@@ -262,7 +262,33 @@
 					}	
                     break;
             }
-        }
+			
+			
+			switch(event.key){
+				case 'd':
+					egg = "d";
+					break;
+				case 'e':
+					egg += "e";
+					break;
+				case 'v':
+					egg += "v";
+					break;
+				default :
+					egg = "";
+					break;
+			}
+			
+			if(egg=="dev"){
+				console.log("render egg");
+				title_msg = "Shubham S. Rindhe";
+				msg = "Created By";
+				setTimeout(function(){
+					title_msg = title;
+					msg = "Press Enter to Start !";
+				},500);
+			}
+		}
         
         
         

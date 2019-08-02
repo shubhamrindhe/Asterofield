@@ -2,6 +2,10 @@
 	var spaceship;
 	var joystick;
 	
+	var egg = "";
+	var title = "ASTEROFIELD";
+	var title_msg = title;
+	var msg = "Press Enter to Start !";
 	var device;
         
     var stars = new Array();
