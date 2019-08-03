@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>snowfallEffect</title>
+	<style>
+		body{
+			padding:0;
+			margin:0;
+			background-color:#ccc;
+		}
+	</style>
+			
+	<script>
+		var canvas,ctx;
+		var stars = new Array();
+		var astroides = new Array();
+		
+		
+		onload = function(){
+			initiate.canvas();
+			animate();
+			//initiate.animation();
+			initiate.particles(astroides,7);
+		};
+		
+		var spaceship = {
+			color: "black",
+			width: 8,
+			height: 22,
+			position : {
+				x: innerWidth/2,
+				y: innerHeight/2
+			},
+			speed : 10,
+			velocity : {
+				x: undefined,
+				y: undefined
+			},
+			torque : 2,
+			angle: 0,
+			engineOn: true,
+			thruster : {
+				l : false,
+				m : false, 
+				r : false,
+				flame : 20,
+			},
+			rotatingLeft: false,
+			rotatingRight: false,
+			crashed: false,
+			
+			draw : function(){
+					ctx.save();
+					ctx.beginPath();
+					ctx.translate(spaceship.position.x, spaceship.position.y);
+					ctx.rotate(spaceship.angle);
+					ctx.fillRect(spaceship.width * -0.5, spaceship.height * -0.5, spaceship.width, spaceship.height);
+					//ctx.arc(spaceship.width * -0.5, spaceship.height * -0.5,spaceship.width*0.5,0,Math.PI*2,true);
+					ctx.fillStyle = spaceship.color;
+					ctx.fill();
+					ctx.closePath();
+
+					// Draw the flame if engine is on
+					if(spaceship.engineOn)
+					{
+						ctx.beginPath();
+						ctx.moveTo(spaceship.width * -0.5, spaceship.height * 0.5);
+						ctx.lineTo(spaceship.width * 0.5, spaceship.height * 0.5);
+						ctx.lineTo(0, spaceship.height * 0.5 + Math.random() * spaceship.thruster.flame);
+						ctx.lineTo(spaceship.width * -0.5, spaceship.height * 0.5);
+						ctx.closePath();
+						ctx.fillStyle = "orange";
+						ctx.fill();
+					}
+					ctx.restore();
+			},
+			update : function(){
+					if(spaceship.rotatingRight){
+						spaceship.angle += spaceship.torque*(Math.PI / 180);
+					}
+					else if(spaceship.rotatingLeft){
+						spaceship.angle -= spaceship.torque*(Math.PI / 180);
+					}
+
+					if( spaceship.engineOn && spaceship.thruster.m )
+					{
+						spaceship.velocity.x = spaceship.speed*Math.sin(spaceship.angle);
+						spaceship.velocity.y = spaceship.speed*Math.cos(spaceship.angle);
+						
+						spaceship.position.x += spaceship.velocity.x;
+						spaceship.position.y -= spaceship.velocity.y;
+					}
+					
+					astroides.forEach(function(particle){
+						if(distance(particle,spaceship.position).r < particle.r + r(spaceship.width/2,spaceship.height/2,0,0)){
+							alert("colllision!");
+						}
+					});
+					
+					if( spaceship.position.x<0 || spaceship.position.x>canvas.width || spaceship.position.y<0 || spaceship.position.y>canvas.height){
+						alert();
+					}
+						
+					this.draw();
+			},
+		};
+		
+		function Particle(x,y,r){
+				
+					this.x = x;
+					this.y = y;
+					this.r = r;
+					this.color = 'rgba(180,180,180,1)';
+					this.velocity={
+						x : random(-2,2), 
+						y : random(2,5)
+					};
+					this.mass = 1;
+					this.gravity = {
+						x : 0,
+						y : 0.09,
+					};
+					
+					this.radian = Math.random()*Math.PI*2;
+					this.e = 1;
+					
+					
+					
+							
+					this.draw = function(){
+						
+						ctx.beginPath();
+						ctx.strokeStyle = this.color;
+						ctx.fillStyle = this.color;
+						ctx.lineWidth = 2;
+						ctx.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+						ctx.stroke();
+						ctx.fill();
+						ctx.closePath();			
+						
+					}
+					this.update = function(){
+						this.draw();
+						
+						for(var i=0;i<astroides.length;++i){
+							if( this === astroides[i] ) continue;
+							if( distance(this,astroides[i]).r- (this.r + astroides[i].r )< 0){
+									//console.log('yo');
+									collisionDetect( this , astroides[i] );
+							}
+						}
+						
+						
+						
+						
+						
+						
+						if(  this.x<0 || this.x > canvas.width ||  this.y > canvas.height ){
+							astroides.splice(astroides.indexOf(this),1);
+							initiate.particles(astroides,1);
+						}
+						//this.velocity.y += this.gravity.y;	//gravity
+						
+						this.x += this.velocity.x;
+						this.y += this.velocity.y;
+						
+						
+								
+					}
+					
+
+		}
+		
+		
+
+		
+		
+		var initiate = {
+			
+			canvas : function(){
+				canvas = document.getElementById('canvas');
+				canvas.style.position = 'absolute';
+				canvas.width = innerWidth;
+				canvas.height = innerHeight;
+				canvas.style.backgroundColor = 'black';
+				ctx = canvas.getContext('2d');
+			},
+			
+			background : function(array,n){
+						if(array.length<n){
+								var x = 1 + Math.floor(Math.random()*canvas.width);
+								var y = Math.floor(Math.random()*canvas.height);
+								var s = 1 + Math.floor(Math.random()*2);
+								array.push( { "x":x , "y":y , "s":s} );
+						}
+						for( var i=0 ; i < array.length ; ++i ){
+							ctx.fillStyle = 'rgba(255,255,255,.70)';
+							ctx.beginPath();
+							ctx.arc( array[i].x , array[i].y += array[i].s*.5 , array[i].s , 0 , Math.PI*2 , true );
+							ctx.fill();
+							ctx.closePath();
+							if( array[i].y > canvas.height ){
+								array.splice(i,1);
+							}
+						}
+			
+			},
+			
+			particles : function ( array , n ){
+							for(var i=0;i<n;++i){
+								var rad = 30;
+								var x=random(rad,innerWidth);
+								var y=random(-50,-10);
+								
+								if(i!=0){
+									for(var j=0;j< array.length;++j){
+										if( distance({x,y},array[j]).r-2*rad < 0){
+											x=random(rad,innerWidth-rad);
+											y=random(rad,innerHeight-rad);
+											j=-1;
+										}
+									}
+								}
+								array.push( new Particle(x,y,rad));
+							}
+			},
+			
+			animation : function(array){
+						window.requestAnimationFrame(function(){initiate.animation(array);});
+		
+						ctx.save();
+
+						ctx.clearRect(0,0,canvas.width,canvas.height);						
+						initiate.background(stars,50);
+						spaceship.update();
+						
+						astroides.forEach(function(particle){
+							particle.update();
+						});
+						
+						
+						ctx.restore();
+			},
+
+		};
+
+		function animate(){
+			requestAnimationFrame(animate);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			initiate.background(stars,50);
+			spaceship.update();
+			
+			astroides.forEach(function(particle){
+				particle.update();
+			});
+						
+		}
+
+		
+		
+		//controls
+		onkeyup = function (event){
+			switch(event.keyCode){
+				case 37:
+					// Left Arrow key
+					spaceship.rotatingLeft = false;
+					spaceship.thruster.r = false;
+					break;
+				case 39:
+					// Right Arrow key
+					spaceship.rotatingRight = false;
+					spaceship.thruster.l = false;
+					break;
+				case 38:
+					// Up Arrow key
+					spaceship.thruster.m = false;
+					spaceship.thruster.flame = 7;
+					//spaceship.engineOn = false;
+					break;
+			}
+		}
+		onkeydown = function(event){
+			switch(event.keyCode){
+				case 32:
+					// Left Arrow key
+					spaceship.engineOn = !spaceship.engineOn;
+					break;
+				case 37:
+					// Left Arrow key
+					spaceship.rotatingLeft = true;
+					spaceship.thruster.r = true;
+					break;
+				case 39:
+					// Right Arrow key
+					spaceship.rotatingRight = true;
+					spaceship.thruster.l = true;
+					break;
+				case 38:
+					// Up Arrow key
+					spaceship.thruster.m = true;
+					spaceship.thruster.flame = 20;
+					break;
+			}
+		}
+
+		
+		
+		
+		function random(a,b){
+			return a + (b-a)*Math.random();
+		}
+		function floor(x){
+			return Math.floor(x);
+		}
+		
+		function distance(a,b){
+			var dx = Math.abs(a.x - b.x);
+			var dy = Math.abs(a.y - b.y);
+			return {	x : dx , y : dy , r : r(dx,dy,0,0)	};
+		}
+		function r(x,y,x1,y1){
+			return Math.sqrt((x-x1)*(x-x1)+(y-y1)*(y-y1));
+		}
+		
+		
+		
+		
+		function rotate(velocity , angle){
+			var rotatedVelociteis = {
+				x : velocity.x*Math.cos(angle) - velocity.y*Math.sin(angle) ,
+				y : velocity.x*Math.sin(angle) + velocity.y*Math.cos(angle)
+			}
+			return rotatedVelociteis;
+		}
+		
+		function collisionDetect( particle , otherParticle ){
+			const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
+			const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
+		
+			const xDist = otherParticle.x - particle.x;
+			const yDist = otherParticle.y - particle.y;
+			
+			if( xVelocityDiff*xDist + yVelocityDiff*yDist >= 0 ){
+				const angle = -Math.atan2( otherParticle.y - particle.y , otherParticle.x - particle.x );
+				
+				const m1 = particle.mass;
+				const m2 = otherParticle.mass;
+				
+				const u1 = rotate(particle.velocity,angle);
+				const u2 = rotate(otherParticle.velocity,angle);
+				
+				const v1 = { x : u1.x*(m1-m2)/(m1+m2) + u2.x*(1+particle.e)*m2/(m1+m2) , y : u1.y };
+				const v2 = { x : u2.x*(m1-m2)/(m1+m2) + u1.x*(1+particle.e)*m2/(m1+m2) , y : u2.y };
+				
+				const vFinal1 = rotate(v1,-angle);
+				const vFinal2 = rotate(v2,-angle);
+				
+				particle.velocity.x = vFinal1.x;
+				particle.velocity.y = vFinal1.y;
+				
+				otherParticle.velocity.x = vFinal2.x;
+				otherParticle.velocity.y = vFinal2.y;
+				
+			}
+		}
+		
+		
+		
+
+	</script>
+
+</head>
+
+<body id="body" >
+			<canvas id="canvas"></canvas>
+</body>
+</html>

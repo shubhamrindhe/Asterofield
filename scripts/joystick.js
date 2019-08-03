@@ -280,8 +280,8 @@
 			}
 			
 			if(egg=="dev"){
-				console.log("render egg");
-				title_msg = "Shubham S. Rindhe";
+				title_msg = document.getElementById('dev').content;
+				
 				msg = "Created By";
 				setTimeout(function(){
 					title_msg = title;
